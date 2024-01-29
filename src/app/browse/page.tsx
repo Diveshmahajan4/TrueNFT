@@ -26,7 +26,7 @@ const page = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/memberships'); 
+        const response = await fetch('/api/memberships'); 
         const data = await response.json();
         console.log("hello  from fetch")
         console.log(data)

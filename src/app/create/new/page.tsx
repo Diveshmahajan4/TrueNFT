@@ -65,7 +65,7 @@ export default function page() {
       setAddress(address);
       const modifiedData = { ...data, nfturl: url, address: address };
 
-      const response = await fetch('http://localhost:3000/api/createmem', {
+      const response = await fetch('/api/createmem', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
