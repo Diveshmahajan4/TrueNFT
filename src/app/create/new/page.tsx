@@ -4,6 +4,8 @@ import Link from "next/link"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useFieldArray, useForm } from "react-hook-form"
 import * as z from "zod"
+import axios from "axios"
+import { CldUploadWidget } from 'next-cloudinary';
 
 
 import {
@@ -18,8 +20,10 @@ import {
   import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "sonner"
 import Image from "next/image"
+import { useCallback, useState } from "react"
+import { useAccount } from "wagmi"
 
 const profileFormSchema = z.object({
   title: z
@@ -39,6 +43,7 @@ const profileFormSchema = z.object({
       message: "Subtitle must not be longer than 80 characters.",
     }),
   benifits: z.string().max(160).min(4),
+  price: z.string(),
 })
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>
@@ -50,35 +55,68 @@ export default function page() {
     mode: "onChange",
   })
 
+  const { isConnected, address} = useAccount();
+  const [url, setUrl] = useState<string>('/img1.jpg')
+  const [addres, setAddress] = useState<String>();
 
-  function onSubmit(data: ProfileFormValues) {
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    })
-  }
+  const onSubmit = async (data: ProfileFormValues) => {
+
+    try {
+      setAddress(address);
+      const modifiedData = { ...data, nfturl: url, address: address };
+
+      const response = await fetch('http://localhost:3000/api/createmem', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(modifiedData),
+      });
+      toast("Successfully created new membership.");
+
+      if (response.ok) {
+        console.log('Membership created successfully');
+        // Add any additional logic or redirection after successful submission
+      } else {
+        console.error('Failed to create membership');
+        // Handle errors or display an error message to the user
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast("Something went wrong!");
+    }
+  };
+
 
   return (
     <section className="flex gap-2">
     <section className="flex-1 lg:max-w-2xl">
+      <CldUploadWidget
+        uploadPreset="truenft_upload"
+        onSuccess={(result, { widget }) => {
+          // console.log(result?.info);
+          const resultWithInfo = result as { info?: { url?: string } };
+
+          if (resultWithInfo.info && resultWithInfo.info.url) {
+            setUrl(resultWithInfo.info.url);
+          }
+          widget.close();
+        }}
+      >
+        {({ open }) => {
+          function handleOnClick() {
+            // setResource(undefined);
+            open();
+          }
+          return (
+            <Button className="my-3" onClick={handleOnClick} variant={"outline"}>
+              Upload NFT
+            </Button>
+          );
+        }}
+      </CldUploadWidget>
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="mt-2"
-            onClick={() => ({})}
-          >
-            Add NFT Image
-          </Button>
-        </div>
-
         <FormField
           control={form.control}
           name="title"
@@ -132,13 +170,26 @@ export default function page() {
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="price"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Price of NFT in ETH</FormLabel>
+              <FormControl>
+                <Input className="w-32" placeholder="23" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         
         <Button type="submit">Create New Membership</Button>
       </form>
     </Form>
     </section>
-    <section className="mx-6 px-4 pt-4 border border-primary-muted rounded-md h-[484px] hidden lg:block md:block">
-        <Image src="/img1.jpg" alt="image" height={300} width={300}/>
+    <section className="mx-6 px-4 pt-4  rounded-md h-[484px] hidden lg:block md:block">
+        <Image className="border border-primary-muted p-2" src={url} alt="image" height={300} width={300}/>
     </section>
     </section>
   )

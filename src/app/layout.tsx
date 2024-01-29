@@ -4,6 +4,8 @@ import "./globals.css";
 import clsx from "clsx";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Navbar from "@/components/Navbar";
+import Provider from "@/context/Provider";
+import { Toaster } from "@/components/ui/sonner";
 
 export const fontSans = FontSans({
   subsets: ["latin"],
@@ -31,9 +33,12 @@ export default function RootLayout({
           defaultTheme="dark"
           enableSystem
           disableTransitionOnChange>
-            <Navbar/>
-          {children}
+            <Provider>
+              <Navbar/>
+              {children}
+            </Provider>
           </ThemeProvider>
+            <Toaster/>
           </body>
     </html>
   );

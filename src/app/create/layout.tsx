@@ -1,6 +1,7 @@
 "use client"
 import { SidebarNav } from "@/components/SidebarNav"
 import { Separator } from "@/components/ui/separator"
+import { Toaster } from "@/components/ui/toaster"
 
 const sidebarNavItems = [
     {
@@ -37,6 +38,7 @@ const layout = ({children} : CreateLayoutProps) => {
         {children}
       </div>
     </div>
+    <Toaster/>
 </section>
   )
 }
