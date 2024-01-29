@@ -50,7 +50,7 @@ const page = () => {
         <p className="mt-4 text-lg text-secondary-muted font-semibold">{item?.title}</p>
         <p className="mt-2 text-muted-foreground">{item?.subtitle}</p>
         <p className="mt-2 text-muted-foreground">{item?.benefits}</p>
-        <p className="mt-2 font-bold">{item?.price}</p>
+        <p className="mt-2 font-bold">{item?.price}{" "}ETH</p>
         <Button className="p-3 mt-4">Buy Now</Button>
     </div>
       ))}
